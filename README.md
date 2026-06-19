@@ -241,3 +241,14 @@ email - <iqhater@yandex.ru>
 Project Link: [https://github.com/iqhater/pkg](https://github.com/iqhater/pkg)
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
+
+<!-- MARKDOWN LINKS & IMAGES -->
+<!-- https://www.markdownguide.org/basic-syntax/#reference-style-links -->
+[issues-shield]: https://img.shields.io/github/issues/iqhater/pkg.svg?style=for-the-badge
+[issues-url]: https://github.com/iqhater/pkg/issues
+[license-shield]: https://img.shields.io/github/license/iqhater/pkg.svg?style=for-the-badge
+[license-url]: https://github.com/iqhater/pkg/blob/main/LICENSE.txt
+[tests-url]: https://github.com/iqhater/pkg/actions/workflows/run_ci_tests.yml/badge.svg
+[tests-shield]: https://github.com/iqhater/pkg/actions/workflows/run_ci_tests.yml/badge.svg
+[go.dev]: https://img.shields.io/badge/golang-00ADD8?style=for-the-badge&logo=go&logoColor=white
+[Go-url]: https://go.dev
