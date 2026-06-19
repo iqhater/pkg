@@ -1,0 +1,130 @@
+version: "3"
+
+# Global environment variables
+env:
+  # Go parameters
+  GOBUILD: go build
+  PLATFORM: windows.exe
+
+  MODULE_NAME: github.com/iqhater/pkg
+
+  # Binary name
+  BINARY_NAME: examples_pkg
+
+  # App entrypoint path
+  APP_ENTRYPOINT: ./examples/middlewares/main.go
+
+# Global variables
+vars:
+  GO_VERSION: "1.26.4"
+  GOLANGCI_LINT_VERSION: "v2.12.2"
+  GCI_VERSION: "v0.14.0"
+  GOFUMPT_VERSION: "v0.10.0"
+
+  BIN_DIR: "{{.ROOT_DIR}}/bin"
+  GOLANGCI_LINT: "{{.BIN_DIR}}/golangci-lint"
+  GCI: "{{.BIN_DIR}}/gci"
+  GOFUMPT: "{{.BIN_DIR}}/gofumpt"
+
+tasks:
+  # Install dependencies
+  install:
+    silent: true
+    cmds:
+      - echo "📦 Install Dependencies"
+      - go mod tidy && go mod verify
+      - task: install-tools
+
+  # Install all local tools if missing
+  install-tools:
+    desc: "Installs local tools if missing"
+    cmds:
+      - task: install-gofumpt
+      - task: install-gci
+      - task: install-golangci-lint
+    status:
+      - test -x "{{.GOFUMPT}}"
+      - test -x "{{.GCI}}"
+      - test -x "{{.GOLANGCI_LINT}}"
+
+  install-gofumpt:
+    desc: "Installs gofumpt in the bin directory if missing"
+    cmds:
+      - |
+        if [ -x "{{.GOFUMPT}}" ]; then
+          echo "✅ gofumpt already installed: {{.GOFUMPT}}"
+        else
+          mkdir -p "{{.BIN_DIR}}"
+          echo "📦 Installing gofumpt {{.GOFUMPT_VERSION}}..."
+          GOBIN="{{.BIN_DIR}}" go install "mvdan.cc/gofumpt@{{.GOFUMPT_VERSION}}"
+        fi
+    status:
+      - test -x "{{.GOFUMPT}}"
+
+  install-gci:
+    desc: "Installs gci in the bin directory if missing"
+    cmds:
+      - |
+        if [ -x "{{.GCI}}" ]; then
+          echo "✅ gci already installed: {{.GCI}}"
+        else
+          mkdir -p "{{.BIN_DIR}}"
+          echo "📦 Installing gci {{.GCI_VERSION}}..."
+          GOBIN="{{.BIN_DIR}}" go install "github.com/daixiang0/gci@{{.GCI_VERSION}}"
+        fi
+    status:
+      - test -x "{{.GCI}}"
+
+  install-golangci-lint:
+    desc: "Installs golangci-lint in the bin directory if missing"
+    cmds:
+      - |
+        if [ -x "{{.GOLANGCI_LINT}}" ]; then
+          echo "✅ golangci-lint already installed: {{.GOLANGCI_LINT}}"
+        else
+          mkdir -p "{{.BIN_DIR}}"
+          echo "📦 Installing golangci-lint {{.GOLANGCI_LINT_VERSION}}..."
+          GOBIN="{{.BIN_DIR}}" go install "github.com/golangci/golangci-lint/v2/cmd/golangci-lint@{{.GOLANGCI_LINT_VERSION}}"
+        fi
+    status:
+      - test -x "{{.GOLANGCI_LINT}}"
+
+  # Build examples binary
+  build:
+    silent: true
+    cmds:
+      - $GOBUILD -o ${BINARY_NAME}_${PLATFORM} $APP_ENTRYPOINT
+      - echo "📦 Example Binary Build Done"
+
+  # Build example binary and run
+  run:
+    silent: true
+    deps: [build]
+    cmds:
+      - echo "🚀 Running Examples Binary"
+      - ./${BINARY_NAME}_${PLATFORM}
+
+  # Run unit tests
+  test:
+    silent: true
+    cmds:
+      - echo "🧪 Running Unit Tests"
+      - go test -v -race -cover -count=1 ./...
+
+  # Clean app binaries
+  clean:
+    cmds:
+      - echo "🧹 Clean App Binaries"
+      - for: ["darwin", "linux", "windows"]
+        cmd: if [ $(go env GOOS) == {{ .ITEM }} ]; then rm ${BINARY_NAME}_${PLATFORM}; fi
+
+  # Lint
+  lint:
+    silent: true
+    deps: [install-golangci-lint]
+    vars:
+      MODULES: "{{.MODULES}}"
+      GOLANGCI_LINT: "{{.GOLANGCI_LINT}}"
+    cmds:
+      - echo "🔦 Running Code Linter"
+        {{.GOLANGCI_LINT}} run ./...
