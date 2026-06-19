@@ -9,7 +9,7 @@ import (
 
 type ctxKey string
 
-const requestIDKey ctxKey = "request_id"
+const RequestIDKey ctxKey = "request_id"
 
 // RequestID create "X-Request-ID" header and pass context next
 func RequestID(next http.Handler) http.Handler {
@@ -22,7 +22,7 @@ func RequestID(next http.Handler) http.Handler {
 			id = uuid.NewString()
 		}
 
-		ctx := context.WithValue(r.Context(), requestIDKey, id)
+		ctx := context.WithValue(r.Context(), RequestIDKey, id)
 		w.Header().Set("X-Request-ID", id)
 
 		next.ServeHTTP(w, r.WithContext(ctx))
@@ -31,7 +31,7 @@ func RequestID(next http.Handler) http.Handler {
 
 // helper func
 func IDFromContext(ctx context.Context) string {
-	if v, ok := ctx.Value(requestIDKey).(string); ok {
+	if v, ok := ctx.Value(RequestIDKey).(string); ok {
 		return v
 	}
 	return ""

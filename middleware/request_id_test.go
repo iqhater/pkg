@@ -140,7 +140,7 @@ func TestIDFromContextReturnsEmptyForMissingKey(t *testing.T) {
 func TestIDFromContextReturnsEmptyForWrongType(t *testing.T) {
 
 	// Arrange
-	ctx := context.WithValue(context.Background(), requestIDKey, 12345)
+	ctx := context.WithValue(context.Background(), RequestIDKey, 12345)
 
 	// Act
 	id := IDFromContext(ctx)
