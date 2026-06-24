@@ -109,7 +109,7 @@ tasks:
     silent: true
     cmds:
       - echo "🧪 Running Unit Tests"
-      - go test -v -race -cover -count=1 ./...
+      - go test -v -race -cover -count=10 ./...
 
   # Clean app binaries
   clean:
